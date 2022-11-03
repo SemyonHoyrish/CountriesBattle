@@ -17,6 +17,7 @@ public class Field : MonoBehaviour
     
     public GameObject MinePrefab;
     public GameObject SawmillPrefab;
+    public GameObject ArmyBasePrefab;
 
 
     //public Material[] CubesMaterials;
@@ -25,6 +26,8 @@ public class Field : MonoBehaviour
 
     private List<List<GameObject>> cubes = new List<List<GameObject>>();
     private GameObject lastPlacePreview;
+
+    private float time = 0f;
 
     // Start is called before the first frame update
     void Start()
@@ -62,7 +65,10 @@ public class Field : MonoBehaviour
             for(int x = 0; x < map.Width; ++x)
             {
                 var c = Instantiate(CubePrefab, new Vector3(x, 0, z), Quaternion.identity);
-                c.GetComponent<Cube>().Type = (Cube.CubeType)map.Data[z][x];
+                Cube cube = c.GetComponent<Cube>();
+                cube.Type = (Cube.CubeType)map.Data[z][x];
+                cube.X = x;
+                cube.Z = z;
             }
         }
 
@@ -73,8 +79,15 @@ public class Field : MonoBehaviour
     {
         switch (ObjectToBuild)
         {
-            case Building.BuildingType.Mine:
+            case Building.BuildingType.GoldMine:
+            case Building.BuildingType.StoneMine:
                 return MinePrefab;
+
+            case Building.BuildingType.Sawmill:
+                return SawmillPrefab;
+
+            case Building.BuildingType.ArmyBase:
+                return ArmyBasePrefab;
 
             default:
                 return null;
@@ -94,27 +107,34 @@ public class Field : MonoBehaviour
                 Cube cube = LastSelectedCube.GetComponent<Cube>();
                 if (Input.GetMouseButtonDown(0))
                 {
-                    if (CanPlace(objectToPlace, cube))
+                    if (CanPlace(cube))
                     {
                         Building.BuildingCost cost = Building.BuildingCostByType[ObjectToBuild];
                         World world = MainCamera.GetComponent<World>();
 
-                        if (world.Money >= cost.Money &&
+                        if (world.Gold >= cost.Gold &&
                             world.Stones >= cost.Stones &&
                             world.Wood >= cost.Wood)
                         {
                             GameObject building = Instantiate(objectToPlace, new Vector3(pos.x, pos.y + 0.5f, pos.z), Quaternion.identity);
+                            building.AddComponent<Building>();
+                            building.GetComponent<Building>().Type = ObjectToBuild;
                             cube.Occupied = true;
+
                             lastPlacePreview = null;
                             ObjectToBuild = Building.BuildingType.None;
-                            building.AddComponent<Building>();
+                            
+
+                            world.Gold -= cost.Gold;
+                            world.Stones -= cost.Stones;
+                            world.Wood -= cost.Wood;
 
                             MainCamera.GetComponent<GameUI>().AddMessageToShow("Построено!", Color.green, 1);
                         }
                         else
                         {
                             MainCamera.GetComponent<GameUI>().AddMessageToShow(
-                                $"Нехватает ресурсов: Золота: {Mathf.Abs(Mathf.Min(world.Money - cost.Money, 0))} Камня: {Mathf.Abs(Mathf.Min(world.Stones - cost.Stones, 0))} Дерева: {Mathf.Abs(Mathf.Min(world.Wood - cost.Wood, 0))}",
+                                $"Нехватает ресурсов: Золота: {Mathf.Abs(Mathf.Min(world.Gold - cost.Gold, 0))} Камня: {Mathf.Abs(Mathf.Min(world.Stones - cost.Stones, 0))} Дерева: {Mathf.Abs(Mathf.Min(world.Wood - cost.Wood, 0))}",
                                 new Color(1.0f, 0.6f, 0f), 2);
                         }
                     }
@@ -124,7 +144,7 @@ public class Field : MonoBehaviour
                     lastPlacePreview = Instantiate(objectToPlace, new Vector3(pos.x, pos.y + 1, pos.z), Quaternion.identity);
                     foreach(var m in lastPlacePreview.GetComponent<Renderer>().materials)
                     {
-                        if (CanPlace(objectToPlace, cube))
+                        if (CanPlace(cube))
                         {
                             m.color = Color.green + m.color;
                         }
@@ -136,24 +156,77 @@ public class Field : MonoBehaviour
                 }
             }
         }
+
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Destroy(lastPlacePreview);
+            lastPlacePreview = null;
+            ObjectToBuild = Building.BuildingType.None;
+        }
     }
 
-    private bool CanPlace(GameObject obj, Cube cube)
+    private void FixedUpdate()
+    {
+        
+        time += Time.fixedDeltaTime;
+        
+        if (time >= 1f)
+        {
+            Building[] buildings = FindObjectsOfType<Building>();
+            World w = GetComponent<World>();
+
+            foreach(var b in buildings)
+            {
+                Building.ProductionAmount pr = b.GetProduction();
+                w.Gold += pr.Gold;
+                w.Stones += pr.Stones;
+                w.Wood += pr.Wood;
+            }
+
+            time = 0f;
+        }
+
+    }
+
+    private bool CanPlace(Cube cube)
     {
         if (cube.Occupied) return false;
 
-        switch(obj.name)
+        switch (ObjectToBuild)
         {
-            case "mine":
-                if (cube.Type == Cube.CubeType.GOLD_MINE ||
-                    cube.Type == Cube.CubeType.STONE_MINE)
-                    return true;
+            case Building.BuildingType.GoldMine:
+                if (cube.Type == Cube.CubeType.GOLD_MINE) return true;
                 break;
 
-            default:
-                Debug.LogError("Undefined object to place! " + obj.name);
+            case Building.BuildingType.StoneMine:
+                if (cube.Type == Cube.CubeType.STONE_MINE) return true;
+                break;
+
+            case Building.BuildingType.Sawmill:
+                if (cube.Type == Cube.CubeType.SAWMILL) return true;
+                break;
+
+            case Building.BuildingType.ArmyBase:
+                if (cube.Type == Cube.CubeType.BUILDING) return true;
                 break;
         }
+
+        //switch(obj.name)
+        //{
+        //    case "mine":
+        //        if (cube.Type == Cube.CubeType.GOLD_MINE && ObjectToBuild == Building.BuildingType.GoldMine ||
+        //            cube.Type == Cube.CubeType.STONE_MINE && ObjectToBuild == Building.BuildingType.StoneMine)
+        //            return true;
+        //        break;
+
+        //    case "sawmill":
+        //        if (cube.Type == Cube.CubeType.SAWMILL) return true;
+        //        break;
+
+        //    default:
+        //        Debug.LogError("Undefined object to place! " + obj.name);
+        //        break;
+        //}
         return false;
     }
 }

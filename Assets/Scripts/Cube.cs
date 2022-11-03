@@ -9,7 +9,7 @@ public class Cube : MonoBehaviour
         BORDER = 0,
         GROUND = 1,
 
-        CAVE = 2,
+        MOUNTAIN = 2,
         TREE = 3,
 
         GOLD_MINE = 4,
@@ -17,8 +17,9 @@ public class Cube : MonoBehaviour
         SAWMILL = 6,
         BUILDING = 7
     }
-        
 
+    public int X;
+    public int Z;
     //public int ListX;
     //public int ListZ;
 
@@ -29,12 +30,16 @@ public class Cube : MonoBehaviour
 
     public Material BorderMaterial;
     public Material GroundMaterial;
-    public Material CaveMaterial;
+    public Material MountainMaterial;
     public Material TreeMaterial;
     public Material GoldMineMaterial;
     public Material StoneMineMaterial;
     public Material SawmillMaterial;
     public Material BuildingMaterial;
+
+    public GameObject GrassPrefab;
+    public GameObject TreePrefab;
+    public GameObject MountainPrefab;
 
     private Color colorBeforeHover;
 
@@ -49,14 +54,23 @@ public class Cube : MonoBehaviour
 
             case CubeType.GROUND:
                 GetComponent<Renderer>().material = GroundMaterial;
+                float rnd()
+                {
+                    return Random.Range(-0.5f, 0.5f);
+                }
+                for (int i = 0; i < 5; ++i)
+                    Instantiate(GrassPrefab, new Vector3(X + rnd(), 0.5f, Z + rnd()), Quaternion.identity);
                 break;
 
-            case CubeType.CAVE:
-                GetComponent<Renderer>().material = CaveMaterial;
+            case CubeType.MOUNTAIN:
+                GetComponent<Renderer>().material = MountainMaterial;
+                Instantiate(MountainPrefab, new Vector3(X, 0.5f, Z), Quaternion.identity);
                 break;
 
             case CubeType.TREE:
                 GetComponent<Renderer>().material = TreeMaterial;
+                var t = Instantiate(TreePrefab, new Vector3(X, 0.5f, Z), Quaternion.identity);
+                t.transform.localScale = new Vector3(0.5f, 0.5f, 0.5f);
                 break;
 
             case CubeType.GOLD_MINE:

@@ -108,14 +108,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7f1ee6712fc75fe45a4691d9f4656116, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  X: 0
+  Z: 0
   Type: 0
   Occupied: 0
   ColorOnHover: {r: 0.02114594, g: 1, b: 0, a: 0}
   BorderMaterial: {fileID: 2100000, guid: 075af9094f33b1a41b71fe3e92fe6286, type: 2}
   GroundMaterial: {fileID: 2100000, guid: 9a4a15dd42bb9ab4d99ac8ffef7bdc17, type: 2}
-  CaveMaterial: {fileID: 2100000, guid: 65d022f7573281148bd7afca56163cd0, type: 2}
+  MountainMaterial: {fileID: 2100000, guid: 65d022f7573281148bd7afca56163cd0, type: 2}
   TreeMaterial: {fileID: 2100000, guid: a7dc49859563a294cb015050c5d3508c, type: 2}
   GoldMineMaterial: {fileID: 2100000, guid: cee2639a3ec3d234ab02f7a2e5e13f8f, type: 2}
   StoneMineMaterial: {fileID: 2100000, guid: 6573d592d2aec984d9b5736a6ef6eec7, type: 2}
   SawmillMaterial: {fileID: 2100000, guid: 0790ab66b464e7d4482e22b567d2b1d1, type: 2}
   BuildingMaterial: {fileID: 2100000, guid: 1eaea78d2c298084a9c3cf99268b3f24, type: 2}
+  GrassPrefab: {fileID: 629542536758182806, guid: 7ca2fa2809968cf47852232e5d4a6e43, type: 3}
+  TreePrefab: {fileID: 9069115365609291303, guid: 60f79905accf3b24fa0114b941f1aac0, type: 3}
+  MountainPrefab: {fileID: 1486726653596827074, guid: daf661d478fbcbf4791f00721500cb43, type: 3}

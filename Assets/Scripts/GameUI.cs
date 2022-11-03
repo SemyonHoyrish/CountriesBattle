@@ -5,7 +5,7 @@ using UnityEngine;
 public class GameUI : MonoBehaviour
 {
 
-    public UnityEngine.UI.Text MoneyCountText;
+    public UnityEngine.UI.Text GoldCountText;
     public UnityEngine.UI.Text StonesCountText;
     public UnityEngine.UI.Text WoodCountText;
 
@@ -36,7 +36,7 @@ public class GameUI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        MoneyCountText.text = "Money: " + World.MainCamera.GetComponent<World>().Money;
+        GoldCountText.text = "Gold: " + World.MainCamera.GetComponent<World>().Gold;
         StonesCountText.text = "Stones: " + World.MainCamera.GetComponent<World>().Stones;
         WoodCountText.text = "Wood: " + World.MainCamera.GetComponent<World>().Wood;
 

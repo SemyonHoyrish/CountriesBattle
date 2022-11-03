@@ -6,7 +6,7 @@ public class World : MonoBehaviour
 {
     public static GameObject MainCamera;
 
-    public int Money = 0;
+    public int Gold = 0;
     public int Stones = 0;
     public int Wood = 0;
 
